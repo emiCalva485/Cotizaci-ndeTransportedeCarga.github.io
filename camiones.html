@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cotización de Transporte de Carga</title>
+    <!--Para el icono de la Pagina-->
+    <link rel="icon" href="./IMG/icono.png" type="image/x-icon">
+    <!-- Para los Iconos-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-SkXyq4FQl58xSMMreNcWYMWj74hw1N5fYv3FThi4PvH3VnYsSDn2MTlM3j8cB3Ki5qVWTrsbIX4eQvZ6TqkT/Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!--Para Adaptarlo en Cualquier Dipositivo-->
+    <link rel="stylesheet" href="./CSS/custom.css"/>
+    <!--Para el Mapa -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <!--Para el boostrap-->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-DY/LYVGUmuCgK1x8lH9NpBOS9wct73Zh84U5BAFO8/iJ1Qd2v2hP2L1p2Hu5f1QFxM3Ap2Qp9Zy72sV/AXe7JQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        padding: 20px;
+        background-color: #f7f7f7;
+    }
+    h1 {
+        text-align: center;
+        padding-left: 2em;
+        padding-right: 2em;
+    }
+    .container {
+        max-width: 800px;
+        margin: auto;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    label {
+        display: block;
+        margin-top: 10px;
+    }
+    input[type="number"], select, input[type="submit"] {
+        width: 100%;
+        padding: 10px;
+        margin-top: 5px;
+    }
+    .result {
+        margin-top: 20px;
+        padding: 10px;
+        background-color: #e7ffe7;
+        border-radius: 5px;
+    }
+    #map {
+        height: 400px;
+        margin-bottom: 20px;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+    }
+    th {
+        background-color: #f2f2f2;
+        text-align: left;
+    }
+    .trailer-image {
+        max-width: 100%;
+        height: auto;
+        margin-top: 20px;
+    }
+    .cotizacion-contenido {
+        display: flex;
+        justify-content: space-between;
+    }
+    .cotizacion-detalles {
+        flex: 1;
+    }
+    .cotizacion-imagen {
+        max-width: 200px;
+        margin-left: 20px;
+    }
+    .footer {
+        margin-top: 20px;
+        padding-top: 10px;
+        text-align: center;
+        border-top: 1px solid #ddd;
+    }
+    .footer p {
+        margin-bottom: 5px;
+    }
+</style>
+</head>
+<body>
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-1">
+                <img src="./IMG/logo.png" alt="Logo" width="80" height="80">
+            </div>
+            <div class="col-10 text-center">
+                <h1 class="my-4">Cotización de Transporte de Carga</h1>
+            </div>
+            <div class="col-1">
+                <img src="./IMG/logo.png" alt="Logo" width="80" height="80" class="float-right">
+            </div>
+        </div>
+        
+        <div id="map" class="mb-4"></div>
+        
+        <form id="cotizacionForm">
+            <div class="form-group">
+                <label for="trailer">Modelo del tráiler:</label>
+                <select id="trailer" class="form-control" required>
+                    <option value="" disabled selected>Seleccione el modelo del tráiler</option>
+                    <option value="Kenworth T680">Kenworth T680 - $5000</option>
+                    <option value="Freightliner Cascadia">Freightliner Cascadia - $5500</option>
+                    <option value="Peterbilt 579">Peterbilt 579 - $6000</option>
+                    <option value="Volvo VNL">Volvo VNL - $6500</option>
+                    <option value="International LT">International LT - $7000</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <img id="trailerImage" src="" alt="Imagen del tráiler" class="img-fluid trailer-image" style="display: none;" width="800px" height="400px">
+            </div>
+
+            <div class="form-group">
+                <label for="peso">Peso de la carga (toneladas):</label>
+                <input type="number" id="peso" class="form-control" min="0.01" max="66.5" step="0.01" required>
+            </div>
+
+            <div class="form-group">
+                <label for="tipoCarga">Tipo de carga:</label>
+                <select id="tipoCarga" class="form-control" required>
+                    <option value="" disabled selected>Seleccione el tipo de carga</option>
+                    <option value="Normal">Normal</option>
+                    <option value="Refrigerada">Refrigerada</option>
+                    <option value="Material Vivo">Material Vivo</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">Calcular Cotización</button>
+        </form>
+
+        <div id="resultado" class="result mt-4" style="display: none;">
+            <h2>Cotización</h2>
+            <div class="cotizacion-contenido">
+                <div class="row">
+                    <div class="col-md-8">
+                        <table id="detalleCotizacion" class="table table-bordered">
+                            <!-- Detalles de la cotización se insertan dinámicamente -->
+                        </table>
+                    </div>
+                    <div class="col-md-4">
+                        <img id="resultadoTrailerImage" src="" alt="Imagen del tráiler seleccionado" class="img-fluid trailer-image">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Nombre de la Empresa: TransCargo Express</p>
+            <p>Teléfono: <a href="tel:+17721412921"><i class="fab fa-whatsapp"></i> (772) 141-2921</a></p>
+            <p>Correo electrónico: <a href="mailto:emicalva1@gmail.com"><i class="fab fa-envelope"></i> emicalva1@gmail.com</a></p>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        let origen, destino;
+        let origenNombre = '', destinoNombre = '';
+
+        const map = L.map('map').setView([23.6345, -102.5528], 5); // Centrar el mapa en México
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        const origenMarker = L.marker([23.6345, -102.5528], { draggable: true }).addTo(map).bindPopup('Origen').openPopup();
+        const destinoMarker = L.marker([23.6345, -102.5528], { draggable: true }).addTo(map).bindPopup('Destino').openPopup();
+
+        origenMarker.on('dragend', function (e) {
+            origen = e.target.getLatLng();
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${origen.lat}&lon=${origen.lng}`)
+                .then(response => response.json())
+                .then(data => {
+                    origenNombre = data.display_name;
+                    origenMarker.bindPopup(origenNombre).openPopup();
+                });
+        });
+
+        destinoMarker.on('dragend', function (e) {
+            destino = e.target.getLatLng();
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${destino.lat}&lon=${destino.lng}`)
+                .then(response => response.json())
+                .then(data => {
+                    destinoNombre = data.display_name;
+                    destinoMarker.bindPopup(destinoNombre).openPopup();
+                });
+        });
+
+        const trailerImages = {
+  "Kenworth T680": "./IMG/kenworth-t680.jpg",
+  "Freightliner Cascadia": "./IMG/freightliner-cascadia.jpeg",
+  "Peterbilt 579": "./IMG/peterbilt-579.jpeg",
+  "Volvo VNL": "./IMG/volvo-vnl.jpeg",
+  "International LT": "./IMG/international-lt.jpeg"
+};
+        document.getElementById('trailer').addEventListener('change', function() {
+  const selectedTrailer = this.value.split(' - ')[0];
+  const trailerImage = document.getElementById('trailerImage');
+  trailerImage.src = trailerImages[selectedTrailer];
+  trailerImage.style.display = 'block';
+});
+
+        document.getElementById('cotizacionForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            if (!origen || !destino) {
+                alert("Por favor, seleccione el origen y el destino en el mapa.");
+                return;
+            }
+
+            const trailer = document.getElementById('trailer').value;
+            const peso = parseFloat(document.getElementById('peso').value);
+            const tipoCarga = document.getElementById('tipoCarga').value;
+
+            const distancia = map.distance(origen, destino) / 1000; // Distancia en km
+            const velocidadPromedio = 80; // km/h
+            const tiempoHoras = distancia / velocidadPromedio;
+
+            const costosTrailer = {
+                "Kenworth T680": 5000,
+                "Freightliner Cascadia": 5500,
+                "Peterbilt 579": 6000,
+                "Volvo VNL": 6500,
+                "International LT": 7000
+            };
+
+            const costoBaseCamion = costosTrailer[trailer.split(' - ')[0]];
+            const costoChofer = 1350;
+            const costoPeajes = 1500;
+            const horasExtras = 2;
+            const costoHorasExtras = 250 * horasExtras;
+
+            const rendimientoCombustible = 6; // km por litro
+            const costoCombustiblePorLitro = 23.8;
+            const consumoCombustible = (distancia / rendimientoCombustible) * costoCombustiblePorLitro;
+
+            let costoCarga = peso * 2000;
+            if (tipoCarga === 'refrigerada') {
+                costoCarga += 1500;
+            } else if (tipoCarga === 'materialVivo') {
+                costoCarga += 3000;
+            }
+
+            const total = costoBaseCamion + costoChofer + costoPeajes + costoHorasExtras + consumoCombustible + costoCarga;
+
+            document.getElementById('detalleCotizacion').innerHTML = `
+                <tr>
+                    <th>Origen</th>
+                    <td>${origenNombre}</td>
+                </tr>
+                <tr>
+                    <th>Destino</th>
+                    <td>${destinoNombre}</td>
+                </tr>
+                <tr>
+                    <th>Modelo del tráiler</th>
+                    <td>${trailer}</td>
+                </tr>
+                <tr>
+                    <th>Peso de la carga</th>
+                    <td>${peso} toneladas</td>
+                </tr>
+                <tr>
+                    <th>Tipo de carga</th>
+                    <td>${tipoCarga}</td>
+                </tr>
+                <tr>
+                    <th>Distancia total</th>
+                    <td>${distancia.toFixed(2)} km</td>
+                </tr>
+                <tr>
+                    <th>Tiempo estimado</th>
+                    <td>${tiempoHoras.toFixed(2)} horas</td>
+                </tr>
+                <tr>
+                    <th>Costo del camión</th>
+                    <td>$${costoBaseCamion} MXN</td>
+                </tr>
+                <tr>
+                    <th>Costo del chofer</th>
+                    <td>$${costoChofer} MXN</td>
+                </tr>
+                <tr>
+                    <th>Costo de peajes</th>
+                    <td>$${costoPeajes} MXN</td>
+                </tr>
+                <tr>
+                    <th>Costo de horas extras</th>
+                    <td>$${costoHorasExtras} MXN</td>
+                </tr>
+                <tr>
+                    <th>Costo de combustible</th>
+                    <td>$${consumoCombustible.toFixed(2)} MXN</td>
+                </tr>
+                <tr>
+                    <th>Costo de la carga</th>
+                    <td>$${costoCarga} MXN</td>
+                </tr>
+                <tr>
+                    <th>Total</th>
+                    <td>$${total.toFixed(2)} MXN</td>
+                </tr>
+            `;
+
+            document.getElementById('resultadoTrailerImage').src = trailerImages[trailer.split(' - ')[0]];
+            document.getElementById('resultado').style.display = 'block';
+        });
+    </script>
+</body>
+</html>
+

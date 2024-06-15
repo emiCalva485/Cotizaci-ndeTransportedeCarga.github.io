@@ -1,0 +1,41 @@
+/* Estilos para dispositivos móviles y tablets */
+@media only screen and (max-width: 1024px) {
+    .container {
+        padding: 10px;
+    }
+
+    .cotizacion-contenido {
+        flex-direction: column;
+    }
+
+    .cotizacion-imagen {
+        margin-top: 10px;
+        margin-left: 0;
+        text-align: center;
+    }
+
+    #map {
+        height: 300px;
+    }
+}
+
+/* Estilos para celulares de pantalla pequeña */
+@media only screen and (max-width: 600px) {
+    .container {
+        padding: 10px;
+    }
+
+    .cotizacion-contenido {
+        flex-direction: column;
+    }
+
+    .cotizacion-imagen {
+        margin-top: 10px;
+        margin-left: 0;
+        text-align: center;
+    }
+
+    #map {
+        height: 250px;
+    }
+}
